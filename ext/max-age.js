@@ -79,6 +79,16 @@ extensions.maxAge = function (maxAge, conf, options) {
 				}
 			});
 		}
+	} else if (options.overtime) {
+		conf.on("get" + postfix, function (id, args, context) {
+			clearTimeout(timeouts[id]);
+			delete timeouts[id];
+
+			timeouts[id] = setTimeout(function () {
+				conf.delete(id);
+			}, maxAge);
+			if (typeof timeouts[id].unref === "function") timeouts[id].unref();
+		});
 	}
 
 	conf.on("clear" + postfix, function () {
